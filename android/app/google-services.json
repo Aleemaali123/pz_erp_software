@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "344814689425",
+    "project_id": "petzify-erp",
+    "storage_bucket": "petzify-erp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344814689425:android:d272fe8da3f3aec66c7330",
+        "android_client_info": {
+          "package_name": "com.example.pz_erp_software"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp2eIn-_XIAB-_2FKWgOwm0IBv0Sbcsjw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
