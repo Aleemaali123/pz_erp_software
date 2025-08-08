@@ -89,7 +89,7 @@ class _SideNavigationState extends State<SideNavigation> {
                         style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                       Text(
-                        adminName ?? "Loading...",
+                        adminName ?? "Aleema",
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
