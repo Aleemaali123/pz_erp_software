@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../auth/auth_wrapper.dart';
 import '../screens/Employee List Page.dart';
 import '../theme/color_theme.dart';
 
@@ -127,6 +128,35 @@ class _SideNavigationState extends State<SideNavigation> {
             ),
           ),
           const SizedBox(height: 20),
+          // 🔽 Add this logout section at the bottom
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+            child: Column(
+              children: [
+                Divider(color: Colors.white24),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.logout, color: Colors.grey),
+                  title: const Text(
+                    "Logout",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20
+                    ),
+                  ),
+                  onTap: () async {
+                    await FirebaseAuth.instance.signOut();
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
