@@ -265,13 +265,13 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                         SizedBox(height: 24),
                         Row(
                           children: [
-                            Expanded(
+                            Flexible(
                               flex: 1,
                               child: _buildTextField(
                                   _nameController, "Full Name", Icons.person),
                             ),
                             const SizedBox(width: 16),
-                            Expanded(
+                            Flexible(
                               flex: 1,
                               child: _buildTextField(
                                   _emailController, "Email", Icons.email,
@@ -285,7 +285,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                         ),
                         Row(
                           children: [
-                            Expanded(
+                            Flexible(
                               flex: 2,
                               child: _buildTextField(
                                   _phoneController, "Phone Number", Icons.phone,
@@ -294,7 +294,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                             SizedBox(
                               width: 16,
                             ),
-                            Expanded(
+                            Flexible(
                               flex: 1,
                               child: _buildGenderDropdown(),
                             ),
@@ -303,13 +303,13 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            Expanded(
+                            Flexible(
                               flex: 1,
                               child: _buildTextField(_departmentController,
                                   "Department", Icons.account_tree_outlined),
                             ),
                             const SizedBox(width: 16),
-                            Expanded(
+                            Flexible(
                               flex: 1,
                               child: _buildTextField(_designationController,
                                   "Designation", Icons.badge_outlined),
@@ -324,7 +324,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            Expanded(
+                            Flexible(
                               flex: 1,
                               child: InkWell(
                                 onTap: _selectDateOfJoining,
@@ -451,11 +451,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       ],
       validator: (value) =>
           value == null || value.isEmpty ? "Please select gender" : null,
-      onChanged: (value) {
-        setState(() {
-          value = _selectedGender!;
-        });
-      },
+    onChanged: (value) {
+    setState(() {
+    _selectedGender = value;
+    });
+
+  },
     );
   }
 

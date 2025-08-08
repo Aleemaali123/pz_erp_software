@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pz_erp_software/screens/Employee%20List%20Page.dart';
+
+import '../screens/Employee List Page.dart';
 import '../theme/color_theme.dart';
 
-class SideNavigation extends StatelessWidget {
+class SideNavigation extends StatefulWidget {
   final Function(int) onMenuSelected;
   final int selectedIndex;
 
@@ -13,7 +17,32 @@ class SideNavigation extends StatelessWidget {
   });
 
   @override
+  _SideNavigationState createState() => _SideNavigationState();
+}
+
+class _SideNavigationState extends State<SideNavigation> {
+  String? adminName;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAdminName();
+  }
+
+  Future<void> fetchAdminName() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final doc = await FirebaseFirestore.instance.collection('admin').doc(user.uid).get();
+      setState(() {
+        adminName = doc.data()?['name'] ?? 'Admin';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Container(
       width: 240,
       color: AppTheme.primaryColor,
@@ -21,7 +50,6 @@ class SideNavigation extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-
           // Logo
           Center(
             child: Container(
@@ -35,17 +63,12 @@ class SideNavigation extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 10),
-
-          // Divider line
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Divider(color: Colors.white24),
           ),
-
           const SizedBox(height: 16),
-
           // User Profile
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -54,23 +77,22 @@ class SideNavigation extends StatelessWidget {
                 const CircleAvatar(
                   radius: 60,
                   backgroundImage: AssetImage('assets/aleeee.jpg'),
-                  //backgroundColor: Colors.yellow,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Welcome,",
                         style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                       Text(
-                        "Admin",
-                        style: TextStyle(
+                        adminName ?? "Loading...",
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
                     ],
@@ -79,31 +101,20 @@ class SideNavigation extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 24),
-
-          // Divider line
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Divider(color: Colors.white24),
           ),
-
           const SizedBox(height: 8),
-
-          // Menu Items
           Expanded(
             child: ListView(
               children: [
                 _buildMenuItem(index: 0, icon: Icons.dashboard, label: "Dashboard"),
                 _buildMenuItem(index: 1, icon: Icons.supervisor_account, label: "Admin Users"),
-
-                // Static item for Employees
                 ListTile(
                   leading: const Icon(Icons.people, color: Colors.white70),
-                  title: const Text(
-                    "Employees",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  title: const Text("Employees", style: TextStyle(color: Colors.white)),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -111,13 +122,10 @@ class SideNavigation extends StatelessWidget {
                     );
                   },
                 ),
-
                 _buildMenuItem(index: 3, icon: Icons.settings, label: "Settings"),
               ],
             ),
           ),
-
-          // Bottom Padding
           const SizedBox(height: 20),
         ],
       ),
@@ -129,14 +137,11 @@ class SideNavigation extends StatelessWidget {
     required IconData icon,
     required String label,
   }) {
-    final isSelected = selectedIndex == index;
+    final isSelected = widget.selectedIndex == index;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      leading: Icon(
-        icon,
-        color: isSelected ? Colors.amber : Colors.white70,
-      ),
+      leading: Icon(icon, color: isSelected ? Colors.amber : Colors.white70),
       title: Text(
         label,
         style: TextStyle(
@@ -146,7 +151,7 @@ class SideNavigation extends StatelessWidget {
       ),
       selected: isSelected,
       selectedTileColor: Colors.black26,
-      onTap: () => onMenuSelected(index),
+      onTap: () => widget.onMenuSelected(index),
     );
   }
 }

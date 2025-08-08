@@ -59,10 +59,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
   }
 
   Future<void> _saveChanges(String docId) async {
-    await FirebaseFirestore.instance
-        .collection('employees')
-        .doc(docId)
-        .update({
+    await FirebaseFirestore.instance.collection('employees').doc(docId).update({
       'fullName': _controllers['fullName']!.text,
       'email': _controllers['email']!.text,
       'phone': _controllers['phone']!.text,
@@ -182,11 +179,11 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                       child: CircleAvatar(
                         radius: 60,
                         backgroundColor: Colors.white,
-                        backgroundImage: imageUrl.isNotEmpty
-                            ? NetworkImage(imageUrl)
-                            : null,
+                        backgroundImage:
+                            imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                         child: imageUrl.isEmpty
-                            ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                            ? const Icon(Icons.person,
+                                size: 50, color: Colors.grey)
                             : null,
                       ),
                     ),
@@ -233,12 +230,12 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                             const SizedBox(height: 16),
                             Row(
                               children: [
-                                Expanded(
+                                Flexible(
                                   flex: 2,
                                   child: _buildField('Address', 'address'),
                                 ),
                                 const SizedBox(width: 16),
-                                Expanded(
+                                Flexible(
                                   child: _buildField('Status', 'status'),
                                 ),
                               ],
