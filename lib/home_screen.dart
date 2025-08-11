@@ -87,14 +87,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          SideNavigation(
-            selectedIndex: _selectedIndex,
-            onMenuSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-          ),
+          // SideNavigation(
+          //   selectedIndex: _selectedIndex,
+          //   onMenuSelected: (index) {
+          //     setState(() {
+          //       _selectedIndex = index;
+          //     });
+          //   },
+          // ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24.0),

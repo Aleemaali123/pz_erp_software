@@ -5,59 +5,25 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Register new admin and store in 'admin' collection
-  Future<User?> registerAdmin({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
+  /// Login by verifying credentials from Firestore "admin" collection
+  Future<User?> loginAdmin(String email, String password) async {
     try {
-      // Create account in Firebase Auth
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
+      // Fetch admin document with matching email
+      final querySnapshot = await _firestore
+          .collection('admin')
+          .where('email', isEqualTo: email)
+          .where('password', isEqualTo: password) // Not secure, for demo only
+          .get();
 
-      User? user = userCredential.user;
-
-      if (user != null) {
-        // Save additional admin details in Firestore under 'admin' collection
-        await _firestore.collection('admin').doc(user.uid).set({
-          'uid': user.uid,
-          'name': name,
-          'email': email,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception("Invalid email or password");
       }
-
-      return user;
+      final adminDoc = querySnapshot.docs.first;
     } on FirebaseAuthException catch (e) {
-      throw Exception(e.message ?? 'Admin registration failed');
+      throw Exception(e.message ?? "Login failed");
+    } catch (e) {
+      throw Exception(e.toString());
     }
+    return null;
   }
-
-  /// Login existing admin
-  Future<User?> loginAdmin({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
-
-      return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      throw Exception(e.message ?? 'Admin login failed');
-    }
-  }
-
-  /// Logout admin
-  Future<void> logout() async {
-    await _auth.signOut();
-  }
-
-  /// Get current admin
-  User? get currentAdmin => _auth.currentUser;
 }

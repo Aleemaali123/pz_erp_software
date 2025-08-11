@@ -1,30 +1,32 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widget/dashboard_layout.dart';
 import 'login_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
+  Future<bool> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+    return FutureBuilder<bool>(
+      future: _checkLoginStatus(),
       builder: (context, snapshot) {
-        // Checking connection state
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (!snapshot.hasData) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // If user is logged in
-        if (snapshot.hasData && snapshot.data != null) {
-          return const HomeScreen(); // Replace with your actual HomeScreen
-        }
-
-        // If not logged in
-        return const AdminLoginScreen();
+        return snapshot.data!
+            ? const DashboardLayout()
+            : const AdminLoginScreen();
       },
     );
   }

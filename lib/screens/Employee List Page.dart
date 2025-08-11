@@ -76,105 +76,137 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredEmployees.isEmpty
-                ? const Center(child: Text("No employees found."))
-                : ListView.builder(
-              itemCount: _filteredEmployees.length,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              itemBuilder: (context, index) {
-                final employee = _filteredEmployees[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EmployeeDetailPage(
-                          employeeId: employee.employeeId,
+                    ? const Center(child: Text("No employees found."))
+                    : GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 284/133,
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: employee.status == 'Deactive'
-                            ? Colors.red
-                            : Colors.transparent,
-                        width: 1.5,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 6,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundImage:
-                          employee.imageUrl.isNotEmpty
-                              ? NetworkImage(employee.imageUrl)
-                              : const AssetImage(
-                              'assets/images/default_avatar.png')
-                          as ImageProvider,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                employee.fullName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              // Container(
-                              //   padding: const EdgeInsets.symmetric(
-                              //       horizontal: 8, vertical: 4),
-                              //   decoration: BoxDecoration(
-                              //     color: employee.status == 'Deactive'
-                              //         ? Colors.red.shade100
-                              //         : Colors.green.shade100,
-                              //     borderRadius:
-                              //     BorderRadius.circular(8),
-                              //   ),
-                              //   child: Text(
-                              //     employee.status,
-                              //     style: TextStyle(
-                              //       fontSize: 12,
-                              //       color: employee.status ==
-                              //           'Deactive'
-                              //           ? Colors.red
-                              //           : Colors.green[700],
-                              //       fontWeight: FontWeight.w500,
-                              //     ),
-                              //   ),
-                              // ),
-
-                              Text(employee.designation,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.blueGrey),
-                              )
-                            ],
+                        itemCount: _filteredEmployees.length,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                itemBuilder: (context, index) {
+                  final employee = _filteredEmployees[index];
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EmployeeDetailPage(
+                            employeeId: employee.employeeId,
                           ),
                         ),
-                      ],
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade200,
+                            blurRadius: 6,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Profile Image
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              width: 120,
+                              height: 150,
+                              color: Colors.grey[300],
+                              child: employee.imageUrl.isNotEmpty
+                                  ? Image.network(
+                                employee.imageUrl,
+                                fit: BoxFit.cover,
+                              )
+                                  : const Icon(Icons.person,
+                                  size: 40, color: Colors.grey),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // Employee Info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  employee.fullName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  employee.designation,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                 "Email:${ employee.email}",
+                                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                                ),
+                                Text(
+                                 "Contact:${ employee.phone ?? ''}",
+                                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                                ),
+                                // Text(
+                                //   "Joining Date: ${employee.doj ?? ''}",
+                                //   style: const TextStyle(fontSize: 13, color: Colors.grey),
+                                // ),
+                                const SizedBox(height: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EmployeeDetailPage(
+                                          employeeId: employee.employeeId,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "View Details",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.teal[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_circle_right_outlined,
+                                        size: 12,
+                                        color: Colors.teal[600],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                }
+
             ),
           ),
         ],

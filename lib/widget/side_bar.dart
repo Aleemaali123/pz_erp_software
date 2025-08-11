@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth/auth_wrapper.dart';
+import '../auth/login_screen.dart';
 import '../screens/Employee List Page.dart';
 import '../theme/color_theme.dart';
 
@@ -33,12 +35,52 @@ class _SideNavigationState extends State<SideNavigation> {
   Future<void> fetchAdminName() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final doc = await FirebaseFirestore.instance.collection('admin').doc(user.uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('admin')
+          .doc(user.uid)
+          .get();
       setState(() {
         adminName = doc.data()?['name'] ?? 'Admin';
       });
     }
   }
+
+  Future<void> _logout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      // Update SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+              (route) => false, // Removes all previous routes
+        );
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +92,15 @@ class _SideNavigationState extends State<SideNavigation> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
           // Logo
-          Center(
-            child: Container(
-              width: 140,
-              height: 100,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/petzify.jpg"),
-                  fit: BoxFit.cover,
-                ),
+          Container(
+            width: double.infinity,
+            height: 80,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/pet.png"),
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -77,7 +117,7 @@ class _SideNavigationState extends State<SideNavigation> {
               children: [
                 const CircleAvatar(
                   radius: 60,
-                  backgroundImage: AssetImage('assets/aleeee.jpg'),
+                  backgroundImage: AssetImage('assets/WhatsApp Image 2025-08-08 at 15.42.17_fbde6885.jpg'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -111,19 +151,16 @@ class _SideNavigationState extends State<SideNavigation> {
           Expanded(
             child: ListView(
               children: [
-                _buildMenuItem(index: 0, icon: Icons.dashboard, label: "Dashboard"),
-                _buildMenuItem(index: 1, icon: Icons.supervisor_account, label: "Admin Users"),
-                ListTile(
-                  leading: const Icon(Icons.people, color: Colors.white70),
-                  title: const Text("Employees", style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const EmployeeListScreen()),
-                    );
-                  },
-                ),
-                _buildMenuItem(index: 3, icon: Icons.settings, label: "Settings"),
+                _buildMenuItem(
+                    index: 0, icon: Icons.dashboard, label: "Dashboard"),
+                _buildMenuItem(
+                    index: 1,
+                    icon: Icons.supervisor_account,
+                    label: "Admin Users"),
+                _buildMenuItem(
+                    index: 2, icon: Icons.people, label: "Employees"),
+                _buildMenuItem(
+                    index: 3, icon: Icons.settings, label: "Settings"),
               ],
             ),
           ),
@@ -134,25 +171,21 @@ class _SideNavigationState extends State<SideNavigation> {
             child: Column(
               children: [
                 Divider(color: Colors.white24),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.logout, color: Colors.grey),
-                  title: const Text(
-                    "Logout",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20
+                InkWell(
+                  onTap: () {
+                    _logout(context);
+                  },
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.logout, color: Colors.red),
+                    title: const Text(
+                      "Logout",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
                     ),
                   ),
-                  onTap: () async {
-                    await FirebaseAuth.instance.signOut();
-                    if (context.mounted) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => const AuthWrapper()),
-                      );
-                    }
-                  },
                 ),
               ],
             ),

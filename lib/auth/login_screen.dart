@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pz_erp_software/auth/register_screen.dart';
-import 'package:pz_erp_software/home_screen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
-// Navigation to register
+import '../auth/register_screen.dart';
+import '../home_screen.dart';
+import '../theme/color_theme.dart';
+import '../widget/dashboard_layout.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -17,34 +19,61 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _loginAdmin() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+  Future<void> _loginAdmin() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      try {
-        User? user = await _authService.loginAdmin(
-         email: _emailController.text.trim(),
-        password:  _passwordController.text.trim(),
-        );
+    FocusScope.of(context).unfocus(); // Fix Flutter web input focus bug
+    setState(() => _isLoading = true);
 
-        if (user != null) {
+    try {
+      // Get the matching admin document
+      final snapshot = await FirebaseFirestore.instance
+          .collection('admin')
+          .where('email', isEqualTo: _emailController.text.trim())
+          .where('password', isEqualTo: _passwordController.text.trim())
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        // Found matching credentials
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login successful')),
+            const SnackBar(
+              content: Text(
+                '✅ Login successful',
+              ),
+              backgroundColor: AppTheme.primaryColor,
+              duration: Duration(seconds: 2),
+            ),
           );
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isLoggedIn', true);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => DashboardLayout()),
+          );
         }
-      } catch (e) {
+      } else {
+        // No matching admin found
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          const SnackBar(
+            content: Text('❌ Invalid email or password'),
+            backgroundColor: AppTheme.primaryColor,
+            duration: Duration(seconds: 2),
+          ),
         );
-      } finally {
-        setState(() => _isLoading = false);
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -56,8 +85,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Card(
-            elevation: 6,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 8,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Form(
@@ -65,13 +95,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset('assets/logo.jpg', height: 100),
-                    const SizedBox(height: 16),
+                    Image.asset('assets/petzify.png', height: 120),
+                    const SizedBox(height: 20),
                     const Text(
                       'Admin Login',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     TextFormField(
                       controller: _emailController,
                       decoration: const InputDecoration(
@@ -79,8 +110,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         prefixIcon: Icon(Icons.email),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) =>
-                      value != null && value.contains('@') ? null : 'Enter a valid email',
+                      validator: (value) => value != null && value.contains('@')
+                          ? null
+                          : 'Enter a valid email',
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -91,34 +123,38 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         prefixIcon: Icon(Icons.lock),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) =>
-                      value != null && value.length >= 6 ? null : 'Minimum 6 characters',
+                      validator: (value) => value != null && value.length >= 6
+                          ? null
+                          : 'Minimum 6 characters',
                     ),
                     const SizedBox(height: 24),
                     _isLoading
                         ? const CircularProgressIndicator()
                         : SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _loginAdmin,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _loginAdmin,
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text('Login',
+                                  style: TextStyle(fontSize: 16)),
+                            ),
                           ),
-                        ),
-                        child: const Text('Login', style: TextStyle(fontSize: 16)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const AdminRegisterScreen()),
-                        );
-                      },
-                      child: const Text("Don't have an account? Register here"),
-                    ),
+                    const SizedBox(height: 12),
+                    // TextButton(
+                    //   onPressed: () {
+                    //     Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(builder: (_) => const AdminRegisterScreen()),
+                    //     );
+                    //   },
+                    //   child: const Text("Don't have an account? Register here"),
+                    // ),
                   ],
                 ),
               ),
