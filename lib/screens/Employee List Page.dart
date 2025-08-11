@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pz_erp_software/model/employee_model.dart';
 import '../services/employee_services.dart';
-import 'add_edit_employee.dart';
+import 'add_employees.dart';
 import 'employee_detail_screen.dart';
 
 class EmployeeListScreen extends StatefulWidget {
@@ -139,28 +139,34 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: employee.status == 'Deactive'
-                                      ? Colors.red.shade100
-                                      : Colors.green.shade100,
-                                  borderRadius:
-                                  BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  employee.status,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: employee.status ==
-                                        'Deactive'
-                                        ? Colors.red
-                                        : Colors.green[700],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
+                              // Container(
+                              //   padding: const EdgeInsets.symmetric(
+                              //       horizontal: 8, vertical: 4),
+                              //   decoration: BoxDecoration(
+                              //     color: employee.status == 'Deactive'
+                              //         ? Colors.red.shade100
+                              //         : Colors.green.shade100,
+                              //     borderRadius:
+                              //     BorderRadius.circular(8),
+                              //   ),
+                              //   child: Text(
+                              //     employee.status,
+                              //     style: TextStyle(
+                              //       fontSize: 12,
+                              //       color: employee.status ==
+                              //           'Deactive'
+                              //           ? Colors.red
+                              //           : Colors.green[700],
+                              //       fontWeight: FontWeight.w500,
+                              //     ),
+                              //   ),
+                              // ),
+
+                              Text(employee.designation,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blueGrey),
+                              )
                             ],
                           ),
                         ),
